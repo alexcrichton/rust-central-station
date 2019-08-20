@@ -1,0 +1,15 @@
+name: CI
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - run: docker build -t rust-central-station .
+    - run: |
+        docker tag rust-central-station:latest docker.pkg.github.com/${{ github.repository }}/rcs:latest
+        docker login docker.pkg.github.com -u github-actions --password-stdin <<< "${{ secrets.github_token }}"
+        docker push docker.pkg.github.com/${{ github.repository }}/rcs:latest
+      if: github.ref == 'refs/heads/master'
